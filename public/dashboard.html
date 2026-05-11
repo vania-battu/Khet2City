@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Dashboard | Khet2City</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .product-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .product-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .product-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #f1f5f9;
+        }
+        .product-info { padding: 1.25rem; }
+        .product-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.25rem; color: var(--text-dark); }
+        .product-category { font-size: 0.875rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; font-weight: 600;}
+        .product-price { font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 1rem; }
+        .category-row {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) #f1f5f9;
+        }
+        .category-row::-webkit-scrollbar {
+            height: 8px;
+        }
+        .category-row::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 4px;
+        }
+        .category-row::-webkit-scrollbar-thumb {
+            background: var(--primary); 
+            border-radius: 4px;
+        }
+        .category-row::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary); 
+        }
+        .category-row .product-card {
+            min-width: 250px;
+            max-width: 250px;
+            flex-shrink: 0;
+        }
+        .scroll-container {
+            position: relative;
+            margin-bottom: 2.5rem;
+        }
+        .scroll-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 1px solid #e2e8f0;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+        }
+        .scroll-btn:hover { background: var(--secondary); border-color: var(--primary); color: var(--primary); }
+        .scroll-btn.left { left: -20px; }
+        .scroll-btn.right { right: -20px; }
+        .advisory-card {
+            background: var(--white);
+            border-left: 4px solid var(--primary);
+            box-shadow: var(--shadow-sm);
+            padding: 1.5rem;
+            margin-bottom: 1.25rem;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            transition: all 0.2s;
+        }
+        .advisory-card:hover { background: var(--secondary); transform: translateX(5px); }
+        
+        /* Farmer Only Visibility Rules mapped via JS later */
+        .farmer-only { display: none; }
+    </style>
+</head>
+<body>
+    <div class="landing-layout">
+        <!-- Sidebar -->
+        <aside class="landing-sidebar">
+            <div class="sidebar-logo">
+                <img src="/assets/images/logo.png" alt="Logo" style="height: 40px; border-radius: 8px;">
+                <div style="display:flex; flex-direction:column;">
+                    <span class="logo-maintitle">Khet2City</span>
+                    <span class="logo-subtitle">Unified Dashboard</span>
+                </div>
+            </div>
+
+            <div style="flex:1; overflow-y:auto; padding: 1.5rem 1rem; display:flex; flex-direction:column; gap:2rem;">
+                <!-- Generic Links -->
+                <div>
+                    <div style="font-size: 0.65rem; font-weight:700; color:#94a3b8; letter-spacing:0.05em; margin-bottom:0.75rem; padding-left:0.5rem;">NAVIGATION</div>
+                    <nav class="sidebar-nav" style="display:flex; flex-direction:column; gap:0.25rem;">
+                        <a href="#" class="sidebar-link" data-section="shop" onclick="showSection('shop')">🏪 Market Shop</a>
+                        <a href="#" class="sidebar-link" data-section="cart" onclick="showSection('cart')">🛒 My Cart (<span id="cart-count">0</span>)</a>
+                        <a href="#" class="sidebar-link" data-section="my-purchases" onclick="showSection('my-purchases')">🎁 My Purchases</a>
+                        <a href="#" class="sidebar-link" data-section="about" onclick="showSection('about')">📖 About Us</a>
+                        <a href="#" class="sidebar-link" data-section="advisory" onclick="showSection('advisory')">🌱 Knowledge Arena</a>
+                        <a href="#" class="sidebar-link" data-section="market-prices" onclick="showSection('market-prices')">📈 Market Prices</a>
+                    </nav>
+                </div>
+
+                <!-- Farmer Only Links -->
+                <div id="nav-farmer-links" class="farmer-only" style="display:none; flex-direction:column; gap:0.25rem;">
+                    <div style="font-size: 0.65rem; font-weight:700; color:#94a3b8; letter-spacing:0.05em; margin-bottom:0.75rem; padding-left:0.5rem;">FARMER TOOLS</div>
+                    <a href="#" class="sidebar-link" onclick="showSection('farmer-overview')">📊 My Products</a>
+                    <a href="#" class="sidebar-link" onclick="showSection('add-product')">➕ Add Product</a>
+                    <a href="#" class="sidebar-link" data-section="received-orders" onclick="showSection('received-orders')">📥 Received Orders</a>
+                </div>
+
+                <div>
+                    <div style="font-size: 0.65rem; font-weight:700; color:#94a3b8; letter-spacing:0.05em; margin-bottom:0.75rem; padding-left:0.5rem;">ABOUT</div>
+                    <div style="background:#fff8f1; border:1px solid #ffedd5; padding:1rem; border-radius:8px; margin-bottom:1rem;">
+                        <h4 style="font-size:0.9rem; font-weight:700; margin-bottom:0.25rem;">Mission</h4>
+                        <p style="font-size:0.75rem; color:var(--text-light); line-height:1.4;">Bridging India's farm-to-table gap through real-time market data insights and direct trade.</p>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="logout()" class="btn-impact" style="margin-top:auto;">
+                <span class="btn-impact-title" id="user-greeting">User</span>
+                <span class="btn-impact-sub">Logout of Dashboard</span>
+            </button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" style="flex:1; overflow-y:auto; padding:3rem 4rem;">
+            <div id="alert-box" class="alert"></div>
+
+            <!-- Shop Section -->
+            <section id="section-shop" style="display: none;">
+                <h2 style="margin: 0 0 1rem 0;">Browse Fresh Produce</h2>
+                <div style="width: 100%; margin-bottom: 2rem;">
+                    <input type="text" id="market-search" class="form-control" placeholder="Search for items, categories..." style="width: 100%; padding: 1rem 1.5rem; border-radius: 30px; box-shadow: var(--shadow-sm); border: 1px solid #e2e8f0; font-size: 1rem;" oninput="handleMarketSearch(this.value)">
+                </div>
+                
+                <div id="market-content">
+                    <p class="text-light">Loading fresh market goods...</p>
+                </div>
+                
+                <div id="market-search-results" class="product-grid" style="display: none;"></div>
+            </section>
+
+            <!-- My Purchases Section -->
+            <section id="section-my-purchases" style="display: none;">
+                <h2>My Purchases History</h2>
+                <div class="card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Product</th>
+                                <th>Farmer</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="my-purchases-table">
+                            <tr><td colspan="5" class="text-center text-light">Loading history...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Cart Section -->
+            <section id="section-cart" style="display: none;">
+                <h2>My Shopping Cart</h2>
+                <div class="card" id="cart-container">
+                    <p class="text-light text-center">Your cart is empty.</p>
+                </div>
+                <div class="card" id="checkout-summary" style="display: none;">
+                    <h3>Order Summary</h3>
+                    <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: bold; margin: 1rem 0;">
+                        <span>Total Checkout Value:</span>
+                        <span id="cart-total" style="color: var(--primary);">₹0</span>
+                    </div>
+                    <button class="btn btn-primary" style="width:100%;" onclick="openCheckoutModal()">Proceed to Checkout (UPI)</button>
+                </div>
+            </section>
+
+            <!-- Advisory/Knowledge Section -->
+            <section id="section-advisory" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <div>
+                        <h2>Knowledge Arena</h2>
+                        <p class="text-light">Community insights and specialist agricultural intelligence.</p>
+                    </div>
+                    <button class="btn btn-secondary" onclick="toggleAdvisoryForm()">+ Share Insight</button>
+                </div>
+
+                <!-- Add Advisory Form -->
+                <div id="advisory-form-container" class="card" style="display: none; border: 2px dashed var(--primary); background: #f0fdf4;">
+                    <h3>Share Your Knowledge</h3>
+                    <div class="form-group">
+                        <label class="form-label">Article Title</label>
+                        <input type="text" id="adv-title" class="form-control" placeholder="e.g. My Pomegranate Harvesting Hack">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select id="adv-type" class="form-control">
+                            <option value="Community Wisdom">Community Wisdom</option>
+                            <option value="Organic Techniques">Organic Techniques</option>
+                            <option value="Technology">Technology</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Your Insight</label>
+                        <textarea id="adv-content" class="form-control" rows="4"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="submitAdvisory()">Post to Arena</button>
+                    <button class="btn" style="color: var(--text-light)" onclick="toggleAdvisoryForm()">Cancel</button>
+                </div>
+                
+                <div id="advisory-list">
+                    <p class="text-center text-light">Loading field wisdom...</p>
+                </div>
+            </section>
+
+            <!-- About Us Section (Dashboard) -->
+            <section id="section-about" style="display: none;">
+                <h2>About Khet2City</h2>
+                <div class="about-grid">
+                    <div>
+                        <h3 style="font-size: 2rem;">Direct. <span style="color: var(--primary);">Fresh.</span> Transparent.</h3>
+                        <p class="text-light" style="margin-bottom: 2rem;">We dismantle the traditional, multi-layered "Mandi" system to bridge the gap between rural farmers and urban consumers.</p>
+                        
+                        <div class="progress-container">
+                            <div class="progress-header"><span>Farmer Income Growth</span><span>+25% to 40%</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 40%;"></div></div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-header"><span>Consumer Savings</span><span>15% to 20%</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 20%;"></div></div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-header"><span>Produce Freshness</span><span>48+ Hours Faster</span></div>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 60%;"></div></div>
+                        </div>
+                    </div>
+                    
+                    <div class="economic-card">
+                        <h3 style="color: var(--primary);">Economic Vision</h3>
+                        <p class="text-light" style="margin-bottom: 1.5rem;">Reducing yearly post-harvest losses worth ₹92,000 crores by optimizing logistics and direct trade.</p>
+                        <ul style="list-style: none; padding-left: 0;">
+                            <li style="margin-bottom: 0.5rem;">🚜 <strong>0.5% GDP Growth</strong> contribution target.</li>
+                            <li style="margin-bottom: 0.5rem;">🌟 <strong>Transparent</strong> price discovery.</li>
+                            <li>🌱 <strong>Sustainability</strong> focused commerce.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Market Prices Section -->
+            <section id="section-market-prices" style="display: none;">
+                <h2>Agmarknet Daily Prices</h2>
+                <p class="text-light" style="margin-bottom: 1.5rem;">Compare your rates with the latest real-time agricultural market prices.</p>
+                <div class="card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Commodity</th>
+                                <th>Average Price (₹/Qtl)</th>
+                                <th>Status / Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody id="market-table">
+                            <tr><td colspan="3" class="text-center text-light">Fetching Agmarknet Prices...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- My Products Section (Farmer Only) -->
+            <section id="section-farmer-overview" style="display: none;">
+                <h2>My Personal Inventory</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-products">0</div>
+                        <div class="stat-label">Total Products Listed</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Listed Products</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Price (₹)</th>
+                                <th>Quantity Available</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table">
+                            <tr><td colspan="6" class="text-light text-center">Loading products...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Add Product Section (Farmer Only) -->
+            <!-- Add Product Section (Farmer Only) -->
+            <section id="section-add-product" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0;">Add New Product</h2>
+                </div>
+                <div style="display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap;">
+                    
+                    <!-- Left: Form -->
+                    <div class="card" style="flex: 1; max-width: 600px; min-width: 300px;">
+                        <form id="add-product-form">
+                            <div class="form-group">
+                                <label class="form-label">Product Name</label>
+                                <input type="text" id="prod-name" class="form-control" required placeholder="e.g. Organic Tomatoes">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Category</label>
+                                <select id="prod-category" class="form-control" required style="padding: 0.875rem 1.25rem; border-radius: 12px; border: 2px solid #e2e8f0;">
+                                    <option value="Vegetables">Vegetables</option>
+                                    <option value="Fruits">Fruits</option>
+                                    <option value="Grains">Grains</option>
+                                    <option value="Dairy">Dairy</option>
+                                    <option value="Pulses">Pulses</option>
+                                    <option value="Spices">Spices</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Price Data (₹)</label>
+                                    <input type="number" id="prod-price" class="form-control" required min="1" placeholder="Price per unit">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Unit</label>
+                                    <select id="prod-unit" class="form-control" required style="padding: 0.875rem 1.25rem; border-radius: 12px; border: 2px solid #e2e8f0;">
+                                        <option value="kg">Per Kg</option>
+                                        <option value="litre">Per Litre</option>
+                                        <option value="quintal">Per Quintal</option>
+                                        <option value="dozen">Per Dozen</option>
+                                        <option value="piece">Per Piece</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Total Quantity Available</label>
+                                <input type="number" id="prod-quantity" class="form-control" required min="1" placeholder="Stock amount">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Description / Details</label>
+                                <textarea id="prod-desc" class="form-control" rows="3" placeholder="Freshly harvested, organic..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Publish Product</button>
+                        </form>
+                    </div>
+
+                    <!-- Right: Voice Agent -->
+                    <div class="card" style="flex: 1; max-width: 400px; min-width: 300px; background: #f0fdf4; border: 2px dashed var(--primary); display: flex; flex-direction: column; gap: 1rem; align-items: center; padding: 2rem;">
+                        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                            <h3 id="voice-heading" style="margin: 0; color: var(--primary);">Voice Assistant</h3>
+                            <select id="voice-lang" class="form-control" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.875rem;" onchange="updateVoiceUILanguage(); resetVoiceBot();">
+                                <option value="en-IN">English</option>
+                                <option value="hi-IN">हिंदी (Hindi)</option>
+                                <option value="te-IN">తెలుగు (Telugu)</option>
+                            </select>
+                        </div>
+                        
+                        <div id="voice-status" style="font-size: 0.875rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em;">Idle</div>
+                        
+                        <button id="voice-btn" class="btn btn-primary" style="width: 80px; height: 80px; border-radius: 50%; font-size: 2rem; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 14px rgba(34,197,94,0.4);" onclick="toggleVoiceBot()">
+                            🎤
+                        </button>
+                        <p id="voice-tap-text" style="text-align: center; font-size: 0.875rem; color: var(--text-light);">Tap to start adding product via voice</p>
+
+                        <div id="voice-chat" style="width: 100%; max-height: 150px; overflow-y: auto; background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.9rem; display: none; flex-direction: column; gap: 0.5rem;">
+                            <!-- Chat log -->
+                        </div>
+
+                        <div id="voice-options" style="width: 100%; display: none; flex-direction: column; gap: 0.5rem;">
+                            <div id="did-you-mean-text" style="font-size: 0.875rem; font-weight: 600; color: var(--text-dark);">Did you mean?</div>
+                            <div id="voice-chips" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                <!-- Option chips -->
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 0.5rem; width: 100%; justify-content: center; margin-top: 0.5rem;">
+                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="restartVoiceBot()" id="btn-voice-restart">🔄 Restart</button>
+                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="clearVoiceChat()" id="btn-voice-clear">🗑️ Clear Chat</button>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Received Orders Section (Farmer Only) -->
+            <section id="section-received-orders" style="display: none;">
+                <h2>Incoming Orders</h2>
+                <div class="card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Product</th>
+                                <th>Buyer</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="received-orders-table">
+                            <tr><td colspan="7" class="text-center text-light">Loading incoming orders...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+
+
+        </main>
+    </div>
+
+    <!-- UPI Modal -->
+    <div class="modal-overlay" id="checkout-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Complete Payment</h3>
+                <button class="btn-close" onclick="closeCheckoutModal()">&times;</button>
+            </div>
+            <div style="text-align: center;">
+                <p class="text-light mb-4">Please scan this Secure Mock QR code mapping the exact Cart Total using any UPI App (GPay, PhonePe, Paytm). Payment goes natively to the seller.</p>
+                <div id="qr-container" style="background:#f1f5f9; width: 220px; height: 220px; margin: 1.5rem auto; border:4px solid var(--primary); display:flex; align-items:center; justify-content:center; border-radius:1rem;">
+                    <span style="font-size: 6rem;">📱</span>
+                </div>
+                <div class="form-group" style="text-align:left;">
+                    <label class="form-label">Enter UPI ID to Confirm</label>
+                    <input type="text" id="mock-upi-input" class="form-control" placeholder="yourname@upi" />
+                </div>
+                <button class="btn btn-primary" style="width:100%" onclick="processPayment()">Confirm Payment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Product Modal -->
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Edit Product</h3>
+                <button class="btn-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="edit-product-form">
+                <input type="hidden" id="edit-prod-id">
+                <div class="form-group">
+                    <label class="form-label">Product Name</label>
+                    <input type="text" id="edit-prod-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="edit-prod-category" class="form-control" required style="padding: 0.875rem 1.25rem; border-radius: 12px; border: 2px solid #e2e8f0;">
+                        <option value="Vegetables">Vegetables</option>
+                        <option value="Fruits">Fruits</option>
+                        <option value="Grains">Grains</option>
+                        <option value="Dairy">Dairy</option>
+                        <option value="Pulses">Pulses</option>
+                        <option value="Spices">Spices</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Price Data (₹)</label>
+                        <input type="number" id="edit-prod-price" class="form-control" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Unit</label>
+                        <select id="edit-prod-unit" class="form-control" required style="padding: 0.875rem 1.25rem; border-radius: 12px; border: 2px solid #e2e8f0;">
+                            <option value="kg">Per Kg</option>
+                            <option value="litre">Per Litre</option>
+                            <option value="quintal">Per Quintal</option>
+                            <option value="dozen">Per Dozen</option>
+                            <option value="piece">Per Piece</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Total Quantity Available</label>
+                    <input type="number" id="edit-prod-quantity" class="form-control" required min="1">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        const API_BASE = '/api';
+        let user = null;
+        let token = null;
+        let cart = []; // mock
+
+        window.onload = () => {
+            token = localStorage.getItem('token');
+            const storedUser = localStorage.getItem('user');
+
+            if (!token || !storedUser) {
+                window.location.href = '/auth.html';
+                return;
+            }
+
+            user = JSON.parse(storedUser);
+            document.getElementById('user-greeting').textContent = `Hello, ${user.name.split(' ')[0]}`;
+            
+            // Enable Farmer links if role matches
+            if (user.role === 'farmer') {
+                document.getElementById('nav-farmer-links').style.display = 'flex';
+                fetchMyProducts();
+            }
+
+            fetchMarketProducts();
+            fetchMarketPrices();
+            fetchAdvisories();
+
+            // Handle section redirects
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialSection = urlParams.get('section') || 'shop';
+            
+            showSection(initialSection);
+        };
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/auth.html';
+        }
+
+        function showAlert(msg, isError=false) {
+            const ab = document.getElementById('alert-box');
+            if(!ab) return;
+            ab.textContent = msg;
+            ab.className = `alert ${isError?'error':'success'}`;
+            ab.style.display = 'block';
+            setTimeout(() => { ab.style.display='none'; }, 4000);
+        }
+
+        function showSection(sectionId) {
+            console.log("Showing section:", sectionId);
+            const sections = document.querySelectorAll('main > section');
+            sections.forEach(el => el.style.display = 'none');
+            
+            const targetSection = document.getElementById(`section-${sectionId}`);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            } else {
+                console.warn("Section not found:", sectionId);
+                const shopSection = document.getElementById('section-shop');
+                if(shopSection) shopSection.style.display = 'block';
+            }
+
+            // Update sidebar links
+            document.querySelectorAll('.sidebar-link').forEach(el => {
+                el.classList.remove('active');
+                if (el.getAttribute('data-section') === sectionId) {
+                    el.classList.add('active');
+                } else if (el.getAttribute('onclick') && el.getAttribute('onclick').includes(`'${sectionId}'`)) {
+                    el.classList.add('active');
+                }
+            });
+            
+            if (sectionId === 'cart') renderCart();
+            if (sectionId === 'received-orders') fetchReceivedOrders();
+            if (sectionId === 'my-purchases') fetchMyPurchases();
+        }
+
+        // Shop: Fetch all market products
+        const imageMap = {
+            'apple': 'https://images.unsplash.com/photo-1560806887-1e4cd0b6caa6?w=400&q=80',
+            'tomato': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80',
+            'mango': 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&q=80',
+            'strawberry': 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400&q=80',
+            'banana': 'https://images.unsplash.com/photo-1603833665858-e61d17a86224?w=400&q=80',
+            'potato': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&q=80',
+            'onion': 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80',
+            'carrot': 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400&q=80',
+            'wheat': 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&q=80',
+            'rice': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80',
+            'milk': 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&q=80',
+            'pulse': 'https://images.unsplash.com/photo-1515543582370-4cff30e4faea?w=400&q=80',
+            'brinjal': 'https://images.unsplash.com/photo-1614735241165-6756e1df61ab?w=400&q=80'
+        };
+
+        const imageAliases = {
+            'apple': ['apple', 'सेब', 'seb', 'యాపిల్', 'yapil', 'yāpil'],
+            'tomato': ['tomato', 'टमाटर', 'tamatar', 'టమాటా', 'tamata'],
+            'mango': ['mango', 'आम', 'aam', 'మామిడి', 'mamidi'],
+            'strawberry': ['strawberry', 'स्ट्रॉबेरी', 'స్ట్రాబెర్రీ'],
+            'banana': ['banana', 'केला', 'kela', 'అరటి', 'arati'],
+            'potato': ['potato', 'आलू', 'aloo', 'aaloo', 'బంగాళాదుంప', 'bangaladumpa'],
+            'onion': ['onion', 'प्याज', 'pyaz', 'pyaaz', 'ఉల్లిపాయ', 'ullipaya', 'ulli'],
+            'carrot': ['carrot', 'गाजर', 'gajar', 'క్యారెట్', 'kyaret'],
+            'wheat': ['wheat', 'गेहूं', 'gehun', 'గోధుమ', 'godhuma'],
+            'rice': ['rice', 'चावल', 'chawal', 'బియ్యం', 'biyyam'],
+            'milk': ['milk', 'दूध', 'doodh', 'పాలు', 'palu'],
+            'pulse': ['pulse', 'dal', 'दाल', 'daal', 'పప్పు', 'pappu'],
+            'brinjal': ['brinjal', 'eggplant', 'baingan', 'बैंगन', 'వంకాయ', 'vankaya']
+        };
+        
+        function getImageUrl(name, category) {
+            const lowerName = name.toLowerCase();
+            for (let key in imageAliases) {
+                if (imageAliases[key].some(alias => lowerName.includes(alias))) return imageMap[key];
+            }
+            if(category === 'Vegetables') return 'https://images.unsplash.com/photo-1597362925123-77861d3fbac7?w=400&q=80';
+            if(category === 'Fruits') return 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=400&q=80';
+            if(category === 'Grains') return 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&q=80';
+            if(category === 'Dairy') return 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&q=80';
+            if(category === 'Pulses') return 'https://images.unsplash.com/photo-1515543582370-4cff30e4faea?w=400&q=80';
+            if(category === 'Spices') return 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&q=80';
+            return 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&q=80';
+        }
+
+        let allMarketProducts = [];
+
+        function renderProductCard(p) {
+            const isMine = p.farmer && p.farmer._id === user._id;
+            const productImgUrl = getImageUrl(p.name, p.category);
+            return `
+                <div class="product-card">
+                    <img src="${productImgUrl}" class="product-img" alt="${p.name}">
+                    <div class="product-info">
+                        <div class="product-category">${p.category}</div>
+                        <div class="product-title">${p.name}</div>
+                        <div class="text-light" style="font-size:0.875rem; margin-bottom:0.5rem">Supplier: ${p.farmer?.name || 'Local Farm'} ${isMine ? '(You)' : ''}</div>
+                        <div class="product-price">₹${p.price} <span style="font-size:0.875rem; color:var(--text-light); font-weight:500;">/ ${p.unit}</span></div>
+                        <button class="btn ${isMine ? 'btn-secondary' : 'btn-outline'}" style="width:100%; padding:0.5rem;" onclick='addToCart(${JSON.stringify(p)})' ${isMine ? 'disabled' : ''}>
+                            ${isMine ? 'Your Product' : 'Add to Cart'}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function fetchMarketProducts() {
+            try {
+                const res = await fetch(`${API_BASE}/products`, { cache: 'no-store' });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    allMarketProducts = data.data || [];
+                    renderMarketCategories();
+                }
+            } catch (err) { console.error("Error fetching products:", err); }
+        }
+
+        function scrollMarketRow(btn, distance) {
+            const row = btn.parentElement.querySelector('.category-row');
+            row.scrollBy({ left: distance, behavior: 'smooth' });
+        }
+
+        function renderMarketCategories() {
+            const content = document.getElementById('market-content');
+            if(allMarketProducts.length === 0) {
+                content.innerHTML = '<p class="text-light">No products available yet.</p>';
+                return;
+            }
+
+            let html = '';
+            // All possible categories from schema
+            const allPossibleCategories = ['Vegetables', 'Fruits', 'Grains', 'Dairy', 'Pulses', 'Spices', 'Other'];
+            const activeCategories = [...new Set(allMarketProducts.map(p => p.category))];
+
+            // 0. Categories Filter Bar
+            html += `
+                <div class="scroll-container">
+                    <button class="scroll-btn left" onclick="scrollMarketRow(this, -200)"><i data-lucide="chevron-left"></i></button>
+                    <div style="display: flex; gap: 1rem; overflow-x: auto; padding: 0.5rem; scrollbar-width: thin; scrollbar-color: var(--primary) #f1f5f9;" class="category-row">
+                        <button class="btn btn-primary category-filter-btn" style="border-radius: 20px; white-space: nowrap;" onclick="filterCategory('All', this)">All Products</button>
+                        ${allPossibleCategories.map(cat => `<button class="btn btn-outline category-filter-btn" style="border-radius: 20px; white-space: nowrap;" onclick="filterCategory('${cat}', this)">${cat}</button>`).join('')}
+                    </div>
+                    <button class="scroll-btn right" onclick="scrollMarketRow(this, 200)"><i data-lucide="chevron-right"></i></button>
+                </div>
+            `;
+
+            // 1. Determine Bestsellers
+            let sortedBySales = [...allMarketProducts].sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0));
+            if (sortedBySales.every(p => !p.salesCount || p.salesCount === 0)) {
+                sortedBySales = sortedBySales.sort(() => 0.5 - Math.random());
+            }
+            const bestsellers = sortedBySales.slice(0, 10); // show more in bestsellers
+            
+            if (bestsellers.length > 0) {
+                html += `
+                    <div id="bestsellers-section" class="scroll-container">
+                        <h3 style="margin-top: 0; margin-bottom: 1rem; color: var(--text-dark);">Trending Bestsellers</h3>
+                        <button class="scroll-btn left" onclick="scrollMarketRow(this, -300)"><i data-lucide="chevron-left"></i></button>
+                        <div class="category-row">
+                            ${bestsellers.map(p => renderProductCard(p)).join('')}
+                        </div>
+                        <button class="scroll-btn right" onclick="scrollMarketRow(this, 300)"><i data-lucide="chevron-right"></i></button>
+                    </div>
+                `;
+            }
+
+            html += `<div id="categories-wrapper">`;
+            // 2. Group by Categories
+            activeCategories.forEach(cat => {
+                const catProducts = allMarketProducts.filter(p => p.category === cat);
+                if(catProducts.length > 0) {
+                    html += `
+                        <div class="category-section scroll-container" data-cat="${cat}">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-dark);">${cat}</h3>
+                            <button class="scroll-btn left" onclick="scrollMarketRow(this, -300)"><i data-lucide="chevron-left"></i></button>
+                            <div class="category-row">
+                                ${catProducts.map(p => renderProductCard(p)).join('')}
+                            </div>
+                            <button class="scroll-btn right" onclick="scrollMarketRow(this, 300)"><i data-lucide="chevron-right"></i></button>
+                        </div>
+                    `;
+                }
+            });
+            html += `</div>`;
+
+            content.innerHTML = html;
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function filterCategory(cat, btnEl) {
+            document.querySelectorAll('.category-filter-btn').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline');
+            });
+            btnEl.classList.remove('btn-outline');
+            btnEl.classList.add('btn-primary');
+
+            const sections = document.querySelectorAll('.category-section');
+            const bestsellers = document.getElementById('bestsellers-section');
+            
+            if(cat === 'All') {
+                if(bestsellers) bestsellers.style.display = 'block';
+                sections.forEach(s => s.style.display = 'block');
+            } else {
+                if(bestsellers) bestsellers.style.display = 'none';
+                sections.forEach(s => {
+                    s.style.display = s.getAttribute('data-cat') === cat ? 'block' : 'none';
+                });
+            }
+        }
+
+        function handleMarketSearch(query) {
+            const q = query.toLowerCase().trim();
+            const content = document.getElementById('market-content');
+            const searchResults = document.getElementById('market-search-results');
+            
+            if (!q) {
+                content.style.display = 'block';
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            content.style.display = 'none';
+            searchResults.style.display = 'grid'; // .product-grid uses grid
+            
+            const matched = allMarketProducts.filter(p => 
+                p.name.toLowerCase().includes(q) || 
+                p.category.toLowerCase().includes(q)
+            );
+
+            if (matched.length === 0) {
+                searchResults.innerHTML = '<p class="text-light" style="grid-column: 1 / -1;">No products found matching your search.</p>';
+            } else {
+                searchResults.innerHTML = matched.map(p => renderProductCard(p)).join('');
+            }
+        }
+
+        // Add Product Form
+        document.getElementById('add-product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                name: document.getElementById('prod-name').value,
+                category: document.getElementById('prod-category').value,
+                price: parseFloat(document.getElementById('prod-price').value),
+                unit: document.getElementById('prod-unit').value,
+                quantity: parseInt(document.getElementById('prod-quantity').value),
+                description: document.getElementById('prod-desc').value
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/products`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showAlert('Product successfully listed on the entire marketplace!');
+                    document.getElementById('add-product-form').reset();
+                    fetchMyProducts();
+                    fetchMarketProducts();
+                    showSection('farmer-overview');
+                } else {
+                    showAlert(data.message || 'Failed to add product', true);
+                }
+            } catch (err) {
+                showAlert('Network error', true);
+            }
+        });
+
+        // Fetch My Products
+        async function fetchMyProducts() {
+            try {
+                const res = await fetch(`${API_BASE}/products`, { cache: 'no-store' });
+                const data = await res.json();
+                if (res.ok) {
+                    const myProducts = data.data.filter(p => p.farmer && (p.farmer._id === user._id || p.farmer === user._id));
+                    document.getElementById('stat-products').textContent = myProducts.length;
+
+                    const tbody = document.getElementById('products-table');
+                    tbody.innerHTML = '';
+                    if (myProducts.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-light">You have no products listed.</td></tr>';
+                    } else {
+                        myProducts.forEach(p => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td><strong>${p.name}</strong></td>
+                                <td><span class="badge" style="background:#e2e8f0; color:var(--text-dark);">${p.category}</span></td>
+                                <td style="font-weight:600; color:var(--text-dark);">₹${p.price} <span style="font-weight:400; font-size:0.875rem;" class="text-light">/ ${p.unit}</span></td>
+                                <td>${p.quantity}</td>
+                                <td><span class="badge up">Available</span></td>
+                                <td>
+                                    <button class="btn btn-outline" style="padding:0.25rem 0.5rem; font-size:0.8rem; margin-right:4px;" onclick='openEditModal(${JSON.stringify(p)})'>Edit</button>
+                                    <button class="btn btn-outline" style="padding:0.25rem 0.5rem; font-size:0.8rem; color:var(--error); border-color:var(--error);" onclick='deleteProduct("${p._id}")'>Delete</button>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    }
+                }
+            } catch (err) {}
+        }
+
+        // Edit and Delete Product Logic
+        function openEditModal(product) {
+            document.getElementById('edit-prod-id').value = product._id;
+            document.getElementById('edit-prod-name').value = product.name;
+            document.getElementById('edit-prod-category').value = product.category;
+            document.getElementById('edit-prod-price').value = product.price;
+            document.getElementById('edit-prod-unit').value = product.unit;
+            document.getElementById('edit-prod-quantity').value = product.quantity;
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.remove('active');
+        }
+
+        document.getElementById('edit-product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-prod-id').value;
+            const payload = {
+                name: document.getElementById('edit-prod-name').value,
+                category: document.getElementById('edit-prod-category').value,
+                price: parseFloat(document.getElementById('edit-prod-price').value),
+                unit: document.getElementById('edit-prod-unit').value,
+                quantity: parseInt(document.getElementById('edit-prod-quantity').value)
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/products/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showAlert('Product updated successfully!');
+                    closeEditModal();
+                    fetchMyProducts();
+                    fetchMarketProducts();
+                } else {
+                    showAlert(data.message || 'Failed to update product', true);
+                }
+            } catch (err) {
+                showAlert('Network error', true);
+            }
+        });
+
+        async function deleteProduct(id) {
+            if (!confirm("Are you sure you want to completely remove this product from the marketplace?")) return;
+            try {
+                const res = await fetch(`${API_BASE}/products/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    showAlert('Product deleted successfully');
+                    fetchMyProducts();
+                    fetchMarketProducts();
+                } else {
+                    showAlert('Failed to delete product', true);
+                }
+            } catch (err) {
+                showAlert('Network error', true);
+            }
+        }
+
+        async function fetchMarketPrices() {
+            try {
+                const res = await fetch(`${API_BASE}/prices`, { cache: 'no-store' });
+                const data = await res.json();
+                if (res.ok && data.data) {
+                    const tbody = document.getElementById('market-table');
+                    tbody.innerHTML = '';
+                    data.data.forEach(item => {
+                        const isUp = item.status === 'up';
+                        const statusClass = isUp ? 'trend-up' : 'trend-down';
+                        const arrow = isUp ? '▲' : '▼';
+                        const colorClass = isUp ? 'price-up' : 'price-down';
+                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><strong style="color:var(--text-dark);">${item.commodity}</strong></td>
+                            <td class="${colorClass}" style="font-weight:700;">₹${item.price} <span style="font-size:0.8rem; font-weight:400; color:var(--text-light)">/ qtl</span></td>
+                            <td><span class="trend-badge ${statusClass}">${arrow} ${item.change}</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (err) {}
+        }
+
+        // Knowledge Arena / Advisory Functions
+        function toggleAdvisoryForm() {
+            const form = document.getElementById('advisory-form-container');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function submitAdvisory() {
+            const title = document.getElementById('adv-title').value;
+            const type = document.getElementById('adv-type').value;
+            const content = document.getElementById('adv-content').value;
+
+            if(!title || !content) { alert("Please fill in both title and content!"); return; }
+
+            try {
+                const res = await fetch(`${API_BASE}/advisory`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ title, type, content })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    showAlert('Success! Your insight has been added to the Arena.');
+                    toggleAdvisoryForm();
+                    document.getElementById('adv-title').value = '';
+                    document.getElementById('adv-content').value = '';
+                    fetchAdvisories();
+                } else {
+                    showAlert(data.message || 'Failed to post advisory', true);
+                }
+            } catch(err) {
+                showAlert('Network error', true);
+            }
+        }
+
+        async function fetchAdvisories() {
+            try {
+                const res = await fetch(`${API_BASE}/advisory`, { cache: 'no-store' });
+                const data = await res.json();
+                if(res.ok) {
+                    const list = document.getElementById('advisory-list');
+                    list.innerHTML = '';
+                    data.advisories.forEach(adv => {
+                        const card = document.createElement('div');
+                        card.className = `advisory-card ${adv.isProfessional ? 'professional' : ''}`;
+                        card.innerHTML = `
+                            ${adv.isProfessional ? '<span class="expert-badge">✔️ Verified Expert</span>' : ''}
+                            <div style="font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">${adv.type}</div>
+                            <h3>${adv.title}</h3>
+                            <p style="margin-top:0.5rem; color: var(--text-dark);">${adv.content}</p>
+                            <p class="text-light" style="margin-top:0.8rem; font-size:0.875rem; font-style: italic;">
+                                - By ${adv.author} ${adv.isProfessional ? '(Specialist)' : '(Community Member)'}
+                            </p>
+                        `;
+                        list.appendChild(card);
+                    });
+                }
+            } catch(err) {}
+        }
+
+        // Cart Logic
+        function addToCart(product) {
+            const existing = cart.find(i => i._id === product._id);
+            if(existing) { 
+                if (existing.cartQty + 1 > product.quantity) {
+                    showAlert(`Quantity exceeded! Only ${product.quantity} ${product.unit} available.`, true);
+                    return;
+                }
+                existing.cartQty += 1; 
+            } 
+            else { 
+                if (product.quantity < 1) {
+                    showAlert('This product is out of stock', true);
+                    return;
+                }
+                product.cartQty = 1; 
+                cart.push(product); 
+            }
+            document.getElementById('cart-count').textContent = cart.length;
+            showAlert(`${product.name} added to cart!`);
+            renderCart(); // Update UI if cart view is open
+        }
+
+        function updateCartQty(index, change) {
+            if (cart[index]) {
+                const newQty = cart[index].cartQty + change;
+                if (newQty > cart[index].quantity) {
+                    showAlert(`Limit reached! Only ${cart[index].quantity} ${cart[index].unit} available.`, true);
+                    return;
+                }
+                cart[index].cartQty = newQty;
+                if (cart[index].cartQty <= 0) {
+                    cart.splice(index, 1);
+                }
+                document.getElementById('cart-count').textContent = cart.length;
+                renderCart();
+            }
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-container');
+            const summary = document.getElementById('checkout-summary');
+            if(cart.length === 0) {
+                container.innerHTML = '<p class="text-light text-center" style="padding:2rem;">Your cart is empty.</p>';
+                summary.style.display = 'none';
+                return;
+            }
+            container.innerHTML = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price * item.cartQty;
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding: 1.25rem 0; border-bottom: 1px solid #e2e8f0;';
+                row.innerHTML = `
+                    <div style="flex:1">
+                        <div style="font-weight:700; font-size:1.1rem;">${item.name}</div>
+                        <div class="text-light">₹${item.price} / ${item.unit}</div>
+                    </div>
+                    
+                    <div style="display:flex; align-items:center; gap:1rem; margin: 0 1.5rem;">
+                        <button class="btn btn-outline" style="padding:4px 10px; min-width:32px; height:32px; font-size:1.2rem; display:flex; align-items:center; border-radius:8px;" onclick="updateCartQty(${index}, -1)">-</button>
+                        <span style="font-weight:700; font-size:1.1rem; min-width:20px; text-align:center;">${item.cartQty}</span>
+                        <button class="btn btn-outline" style="padding:4px 10px; min-width:32px; height:32px; font-size:1.2rem; display:flex; align-items:center; border-radius:8px;" onclick="updateCartQty(${index}, 1)">+</button>
+                    </div>
+
+                    <div style="font-weight:800; font-size:1.2rem; color:var(--text-dark); min-width:80px; text-align:right;">₹${item.price * item.cartQty}</div>
+                `;
+                container.appendChild(row);
+            });
+            document.getElementById('cart-total').textContent = `₹${total}`;
+            summary.style.display = 'block';
+        }
+
+        function openCheckoutModal() { 
+            let total = 0;
+            cart.forEach(i => total += (i.price * i.cartQty));
+            
+            const qrUri = `upi://pay?pn=Khet2City_Farmer&am=${total}&cu=INR`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUri)}`;
+            
+            document.getElementById('qr-container').innerHTML = `<img src="${qrUrl}" alt="UPI payment QR" style="border-radius:0.5rem; width:190px; height:190px;">`;
+            
+            document.getElementById('checkout-modal').classList.add('active'); 
+        }
+
+        function closeCheckoutModal() { 
+            document.getElementById('checkout-modal').classList.remove('active'); 
+        }
+
+        async function fetchReceivedOrders() {
+            try {
+                const res = await fetch(`${API_BASE}/orders/incoming`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    const tbody = document.getElementById('received-orders-table');
+                    tbody.innerHTML = '';
+                    const orders = data.data.orders;
+                    if(orders.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-light">No incoming orders yet.</td></tr>';
+                        return;
+                    }
+                    orders.forEach(o => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>#${o._id.slice(-6)}</td>
+                            <td>${o.product?.name || 'Deleted Product'}</td>
+                            <td>${o.buyer?.name || 'Deleted User'}</td>
+                            <td>${o.quantity}</td>
+                            <td>₹${o.totalAmount}</td>
+                            <td><span class="badge ${o.status.toLowerCase()}">${o.status}</span></td>
+                            <td>
+                                <select onchange="updateOrderStatus('${o._id}', this.value)" style="padding:4px; border-radius:4px; border:1px solid #ccc;">
+                                    <option value="">Update...</option>
+                                    <option value="Confirmed">Confirm</option>
+                                    <option value="Shipped">Ship</option>
+                                    <option value="Delivered">Deliver</option>
+                                    <option value="Cancelled">Cancel</option>
+                                </select>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (err) { }
+        }
+
+        async function updateOrderStatus(id, status) {
+            if(!status) return;
+            try {
+                const res = await fetch(`${API_BASE}/orders/${id}/status`, {
+                    method: 'PATCH',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status })
+                });
+                if(res.ok) {
+                    showAlert(`Order ${status} successfully!`);
+                    fetchReceivedOrders();
+                }
+            } catch (err) { }
+        }
+
+        async function fetchMyPurchases() {
+            try {
+                const res = await fetch(`${API_BASE}/orders/my`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    const tbody = document.getElementById('my-purchases-table');
+                    tbody.innerHTML = '';
+                    const orders = data.data.orders;
+                    if(orders.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-light">You haven\'t bought anything yet.</td></tr>';
+                        return;
+                    }
+                    orders.forEach(o => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>#${o._id.slice(-6)}</td>
+                            <td>${o.product?.name || 'Deleted Product'}</td>
+                            <td>${o.farmer?.name || 'Deleted Farmer'}</td>
+                            <td>₹${o.totalAmount}</td>
+                            <td><span class="badge ${o.status.toLowerCase()}">${o.status}</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+            } catch (err) { }
+        }
+
+        async function processPayment() {
+            const upi = document.getElementById('mock-upi-input').value;
+            if(!upi) { alert("Please enter a valid UPI ID (e.g. yourname@upi)"); return; }
+            
+            try {
+                const res = await fetch(`${API_BASE}/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ cart: cart, upiId: upi })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    closeCheckoutModal();
+                    cart = [];
+                    document.getElementById('cart-count').textContent = '0';
+                    renderCart();
+                    showAlert('Payment Successful! Your official order has been created and synced with the Farmer.', false);
+                    setTimeout(()=> showSection('shop'), 2000);
+                } else {
+                    showAlert(data.message || 'Failed to process checkout order', true);
+                }
+            } catch (err) {
+                showAlert('Network error during checkout submittal', true);
+            }
+        }
+
+        // --- Voice Assistant Logic ---
+        let voiceActive = false;
+        let voiceStep = 0;
+        let recognition = null;
+        let synth = window.speechSynthesis;
+        
+        const voiceFields = [
+            { id: 'prod-name', prompts: { 'en-IN': 'What is the product name?', 'hi-IN': 'उत्पाद का नाम क्या है?', 'te-IN': 'ఉత్పత్తి పేరు ఏమిటి?' }, promptsRoman: { 'hi-IN': 'Utpad ka naam kya hai?', 'te-IN': 'Utpatti peru yemi?' } },
+            { id: 'prod-category', prompts: { 'en-IN': 'What is the category? Like Vegetables, Fruits, Grains.', 'hi-IN': 'श्रेणी क्या है? जैसे सब्जियां, फल, या अनाज।', 'te-IN': 'ఇది ఏ వర్గానికి చెందినది? కూరగాయలు, పండ్లు, లేదా ధాన్యాలా?' }, promptsRoman: { 'hi-IN': 'Shranee kya hai? Jaise sabziyaan, fal, ya anaaj.', 'te-IN': 'Idhi ye category ki chendhinadhi? Kuragayalu, pallu, leka dhanyala?' } },
+            { id: 'prod-price', prompts: { 'en-IN': 'What is the price per unit in rupees?', 'hi-IN': 'प्रति यूनिट कीमत कितने रुपये है?', 'te-IN': 'ఒక యూనిట్ ధర ఎన్ని రూపాయలు?' }, promptsRoman: { 'hi-IN': 'Prati unit ki kimat kitni rupees hai?', 'te-IN': 'Oka unit dhara yentha roopayalu?' } },
+            { id: 'prod-unit', prompts: { 'en-IN': 'What is the unit? For example, kg, litre, or piece.', 'hi-IN': 'इकाई क्या है? उदाहरण के लिए, किलो, लीटर, या टुकड़ा।', 'te-IN': 'కొలమానం ఏమిటి? ఉదాహరణకు కిలో, లీటరు, లేదా పీస్.' }, promptsRoman: { 'hi-IN': 'Unit kya hai? Jaise kilo, liter, ya piece.', 'te-IN': 'Unit yemi? Udhaharanaku kg, litre, leka piece.' } },
+            { id: 'prod-quantity', prompts: { 'en-IN': 'What is the total quantity available?', 'hi-IN': 'कुल कितनी मात्रा उपलब्ध है?', 'te-IN': 'మొత్తం ఎంత పరిమాణం అందుబాటులో ఉంది?' }, promptsRoman: { 'hi-IN': 'Kul kitni matra uplabdh hai?', 'te-IN': 'Mottam yentha parimanam andhubaatulo undhi?' } },
+            { id: 'prod-desc', prompts: { 'en-IN': 'Please provide a short description.', 'hi-IN': 'कृपया एक छोटा विवरण प्रदान करें।', 'te-IN': 'దయచేసి చిన్న వివరణ ఇవ్వండి.' }, promptsRoman: { 'hi-IN': 'Kripya chota vivaran dein.', 'te-IN': 'Dhayachesi chinna vivarana ivvandi.' } }
+        ];
+
+        const voiceTranslations = {
+            'en-IN': {
+                heading: 'Voice Assistant', tapStart: 'Tap to start adding product via voice', idle: 'Idle', listening: 'Listening...', processing: 'Processing...', needClarification: 'Need Clarification', didYouMean: 'Did you mean?', allFilled: 'All fields filled! You can now publish the product.', error: "Sorry, I didn't catch that. Try again?", bot: "Bot", you: "You", restart: "🔄 Restart", clear: "🗑️ Clear Chat"
+            },
+            'hi-IN': {
+                heading: 'आवाज़ सहायक', tapStart: 'आवाज़ से उत्पाद जोड़ने के लिए टैप करें', idle: 'निष्क्रिय', listening: 'सुन रहा हूँ...', processing: 'प्रोसेस हो रहा है...', needClarification: 'स्पष्टीकरण चाहिए', didYouMean: 'क्या आपका मतलब था?', allFilled: 'सभी फ़ील्ड भर गए! अब आप उत्पाद प्रकाशित कर सकते हैं।', error: "क्षमा करें, मुझे समझ नहीं आया। फिर से प्रयास करें?", bot: "बॉट", you: "आप", restart: "🔄 पुनः आरंभ", clear: "🗑️ साफ़ करें"
+            },
+            'te-IN': {
+                heading: 'వాయిస్ అసిస్టెంట్', tapStart: 'వాయిస్ ద్వారా ఉత్పత్తిని జోడించడానికి నొక్కండి', idle: 'క్రియారహితంగా', listening: 'వింటున్నాను...', processing: 'ప్రాసెస్ చేయబడుతోంది...', needClarification: 'స్పష్టీకరణ అవసరం', didYouMean: 'మీ ఉద్దేశ్యం ఇదా?', allFilled: 'అన్ని ఫీల్డ్‌లు నింపబడ్డాయి! మీరు ఇప్పుడు ప్రచురించవచ్చు.', error: "క్షమించండి, నాకు అర్థం కాలేదు. మళ్ళీ ప్రయత్నించండి?", bot: "బాట్", you: "మీరు", restart: "🔄 పునఃప్రారంభించు", clear: "🗑️ చాట్ క్లియర్"
+            }
+        };
+
+        let voicesLoaded = false;
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = () => { voicesLoaded = true; };
+        }
+
+        function updateVoiceUILanguage() {
+            const lang = document.getElementById('voice-lang').value;
+            const t = voiceTranslations[lang];
+            document.getElementById('voice-heading').textContent = t.heading;
+            document.getElementById('voice-tap-text').textContent = t.tapStart;
+            if(!voiceActive) document.getElementById('voice-status').textContent = t.idle;
+            document.getElementById('did-you-mean-text').textContent = t.didYouMean;
+            document.getElementById('btn-voice-restart').textContent = t.restart;
+            document.getElementById('btn-voice-clear').textContent = t.clear;
+        }
+        
+        function getVoiceTranslation(key) {
+            const lang = document.getElementById('voice-lang').value;
+            return voiceTranslations[lang][key];
+        }
+
+        function initVoiceBot() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Speech recognition is not supported in your browser.");
+                return;
+            }
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 3;
+
+            recognition.onstart = function() {
+                document.getElementById('voice-status').textContent = getVoiceTranslation('listening');
+                document.getElementById('voice-btn').style.background = "#ef4444";
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech error", event.error);
+                if(voiceActive) {
+                    addVoiceChat(getVoiceTranslation('bot'), getVoiceTranslation('error'));
+                    setTimeout(() => startListening(), 1500);
+                }
+            };
+
+            recognition.onend = function() {
+                if (voiceActive && document.getElementById('voice-status').textContent === getVoiceTranslation('listening')) {
+                    document.getElementById('voice-status').textContent = getVoiceTranslation('processing');
+                    
+                    // If it remains processing for 2 seconds without advancing, trigger an error
+                    setTimeout(() => {
+                        if (voiceActive && document.getElementById('voice-status').textContent === getVoiceTranslation('processing')) {
+                            addVoiceChat(getVoiceTranslation('bot'), getVoiceTranslation('error'));
+                            startListening();
+                        }
+                    }, 2000);
+                }
+            };
+
+            recognition.onresult = function(event) {
+                let finalTranscript = '';
+                let interimTranscript = '';
+                const results = event.results[event.resultIndex];
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                if (interimTranscript) {
+                    document.getElementById('voice-status').textContent = interimTranscript + "...";
+                }
+
+                if (finalTranscript) {
+                    const alternatives = [];
+                    for(let i=0; i<results.length; i++) {
+                        alternatives.push(results[i].transcript.trim());
+                    }
+                    
+                    addVoiceChat(getVoiceTranslation('you'), alternatives[0]);
+
+                    if(alternatives.length > 1 && results[0].confidence < 0.8) {
+                        showVoiceOptions(alternatives);
+                    } else {
+                        processVoiceInput(alternatives[0]);
+                    }
+                }
+            };
+        }
+
+        function toggleVoiceBot() {
+            if(!recognition) initVoiceBot();
+            
+            voiceActive = !voiceActive;
+            const btn = document.getElementById('voice-btn');
+            if(voiceActive) {
+                btn.style.background = "#22c55e";
+                document.getElementById('voice-chat').style.display = "flex";
+                if(voiceStep >= voiceFields.length) voiceStep = 0; // if completed, restart on toggle
+                askNextQuestion();
+            } else {
+                resetVoiceBotState();
+            }
+        }
+
+        function restartVoiceBot() {
+            voiceStep = 0;
+            document.getElementById('voice-chat').innerHTML = "";
+            if(!voiceActive) toggleVoiceBot();
+            else {
+                synth.cancel();
+                if(recognition) recognition.stop();
+                setTimeout(() => askNextQuestion(), 100);
+            }
+        }
+
+        function clearVoiceChat() {
+            document.getElementById('voice-chat').innerHTML = "";
+        }
+
+        function resetVoiceBotState() {
+            voiceActive = false;
+            if(recognition) recognition.stop();
+            synth.cancel();
+            document.getElementById('voice-btn').style.background = "var(--primary)";
+            document.getElementById('voice-status').textContent = getVoiceTranslation('idle');
+            document.getElementById('voice-options').style.display = "none";
+        }
+
+        function resetVoiceBot() {
+            resetVoiceBotState();
+        }
+
+        function getNativeVoice(lang) {
+            const voices = synth.getVoices();
+            return voices.find(v => v.lang === lang || v.lang.startsWith(lang.split('-')[0])) || null;
+        }
+
+        function askNextQuestion() {
+            if(!voiceActive) return;
+            if(voiceStep >= voiceFields.length) {
+                addVoiceChat(getVoiceTranslation('bot'), getVoiceTranslation('allFilled'));
+                resetVoiceBotState();
+                return;
+            }
+
+            const field = voiceFields[voiceStep];
+            const lang = document.getElementById('voice-lang').value;
+            const text = field.prompts[lang] || field.prompts['en-IN'];
+            
+            // Re-translate status just in case it isn't "speaking" exactly in design but we hardcode for now
+            document.getElementById('voice-status').textContent = lang === 'hi-IN' ? "बोल रहा हूँ..." : lang === 'te-IN' ? "మాట్లాడుతున్నాను..." : "Speaking...";
+            addVoiceChat(getVoiceTranslation('bot'), text);
+            document.getElementById('voice-options').style.display = "none";
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            const nativeVoice = getNativeVoice(lang);
+            if(nativeVoice) {
+                utterance.voice = nativeVoice;
+            } else if (field.promptsRoman && field.promptsRoman[lang]) {
+                // Fallback to Romanized text so default English voices can actually speak it instead of staying silent
+                utterance.text = field.promptsRoman[lang];
+            }
+            
+            utterance.onend = function() {
+                if(voiceActive) startListening();
+            };
+            
+            synth.speak(utterance);
+        }
+
+        function startListening() {
+            if(!voiceActive) return;
+            const lang = document.getElementById('voice-lang').value;
+            recognition.lang = lang;
+            try { recognition.start(); } catch(e) {}
+        }
+
+        function addVoiceChat(sender, text) {
+            const chat = document.getElementById('voice-chat');
+            const msg = document.createElement('div');
+            msg.style.padding = "0.5rem";
+            msg.style.borderRadius = "0.5rem";
+            msg.style.background = sender === "Bot" ? "#f1f5f9" : "#dcfce7";
+            msg.style.alignSelf = sender === "Bot" ? "flex-start" : "flex-end";
+            msg.style.maxWidth = "85%";
+            msg.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            chat.appendChild(msg);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function showVoiceOptions(options) {
+            document.getElementById('voice-status').textContent = getVoiceTranslation('needClarification');
+            const container = document.getElementById('voice-options');
+            const chips = document.getElementById('voice-chips');
+            chips.innerHTML = "";
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "btn btn-outline";
+                btn.style.padding = "0.25rem 0.5rem";
+                btn.style.fontSize = "0.8rem";
+                btn.style.cursor = "pointer";
+                btn.textContent = opt;
+                btn.onclick = () => {
+                    addVoiceChat(getVoiceTranslation('you'), opt + " (Selected)");
+                    container.style.display = "none";
+                    processVoiceInput(opt);
+                };
+                chips.appendChild(btn);
+            });
+            container.style.display = "flex";
+        }
+
+        function processVoiceInput(text) {
+            const fieldId = voiceFields[voiceStep].id;
+            const inputEl = document.getElementById(fieldId);
+            
+            if(inputEl.tagName === "SELECT") {
+                const options = Array.from(inputEl.options);
+                const match = options.find(o => text.toLowerCase().includes(o.value.toLowerCase()) || text.toLowerCase().includes(o.text.toLowerCase()));
+                if(match) {
+                    inputEl.value = match.value;
+                } else {
+                    if(options.length > 0) inputEl.value = options[0].value;
+                }
+            } else if (inputEl.type === "number") {
+                const numMatch = text.match(/\d+/);
+                if(numMatch) {
+                    inputEl.value = numMatch[0];
+                } else {
+                    const wordToNum = {
+                        'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+                        'eleven': 11, 'twelve': 12, 'twenty': 20, 'thirty': 30, 'forty': 40, 'fifty': 50, 'sixty': 60, 'seventy': 70, 'eighty': 80, 'ninety': 90, 'hundred': 100,
+                        'एक': 1, 'दो': 2, 'तीन': 3, 'चार': 4, 'पांच': 5, 'छह': 6, 'सात': 7, 'आठ': 8, 'नौ': 9, 'दस': 10, 
+                        'बीस': 20, 'तीस': 30, 'चालीस': 40, 'पचास': 50, 'साठ': 60, 'सत्तर': 70, 'अस्सी': 80, 'नब्बे': 90, 'सौ': 100,
+                        'ఒకటి': 1, 'రెండు': 2, 'మూడు': 3, 'నాలుగు': 4, 'ఐదు': 5, 'ఆరు': 6, 'ఏడు': 7, 'ఎనిమిది': 8, 'తొమ్మిది': 9, 'పది': 10, 
+                        'ఇరవై': 20, 'ముప్పై': 30, 'నలభై': 40, 'యాభై': 50, 'అరవై': 60, 'డెబ్బై': 70, 'ఎనభై': 80, 'తొంభై': 90, 'వంద': 100
+                    };
+                    let found = false;
+                    for (const [word, num] of Object.entries(wordToNum)) {
+                        if (text.toLowerCase().includes(word)) {
+                            inputEl.value = num;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) inputEl.value = 1; // Default to 1 if no number matched
+                }
+            } else {
+                inputEl.value = text;
+            }
+            
+            voiceStep++;
+            askNextQuestion(); // Removed setTimeout to make it add instantly to UI and ask next immediately
+        }
+
+        // Initialize translated UI on load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateVoiceUILanguage();
+        });
+
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+
+    <!-- Language Selector & Google Translate -->
+    <div style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; align-items: center; gap: 10px; background: white; padding: 8px 12px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <span style="font-size: 1.2rem;">🌐</span>
+        <select id="k2c-lang-select" onchange="changeK2CLanguage(this.value)" style="border: none; outline: none; background: transparent; font-weight: 600; cursor: pointer; color: var(--text-dark, #333); padding: 4px 0; line-height: 1.5; font-size: 1rem;">
+            <option value="en">English</option>
+            <option value="hi">हिंदी (Hindi)</option>
+            <option value="te">తెలుగు (Telugu)</option>
+        </select>
+    </div>
+
+    <div id="google_translate_element" style="display:none;"></div>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'en,hi,te', autoDisplay: false}, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script>
+        function changeK2CLanguage(lang) {
+            const domain = window.location.hostname;
+            document.cookie = `googtrans=/en/${lang}; path=/`;
+            if (domain && domain !== 'localhost') {
+                document.cookie = `googtrans=/en/${lang}; domain=.${domain}; path=/`;
+            }
+            location.reload();
+        }
+
+        window.addEventListener('load', () => {
+            const match = document.cookie.match(/googtrans=\/en\/([a-z]{2})/);
+            if(match && match[1]) {
+                const select = document.getElementById('k2c-lang-select');
+                if([...select.options].some(opt => opt.value === match[1])) {
+                    select.value = match[1];
+                }
+            }
+        });
+    </script>
+</body>
+</html>

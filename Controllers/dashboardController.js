@@ -49,3 +49,5 @@ exports.getBuyerDashboard = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 };
+
+exports.getAdminDashboard = async (req, res) => res.json({ message: 'Admin dashboard not implemented' });

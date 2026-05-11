@@ -5,8 +5,8 @@ const {
 } = require('../controllers/orderController');
 const { protect, authorize } = require('../middleware/auth');
 
-router.post('/',               protect, authorize('buyer'),           placeOrder);
-router.get('/my',              protect, authorize('buyer'),           getMyOrders);
+router.post('/',               protect, authorize('buyer', 'farmer'),   placeOrder);
+router.get('/my',              protect, authorize('buyer', 'farmer'),   getMyOrders);
 router.get('/incoming',        protect, authorize('farmer'),          getIncomingOrders);
 router.get('/:id',             protect,                               getOrder);
 router.patch('/:id/status',    protect, authorize('farmer','admin'),  updateStatus);

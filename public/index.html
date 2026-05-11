@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khet2City | Farm Fresh, No Middlemen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .hero {
+            display: flex;
+            align-items: center;
+            min-height: calc(100vh - 72px);
+            padding: 0 5%;
+            background: linear-gradient(rgba(27, 94, 32, 0.8), rgba(27, 94, 32, 0.8)), url('/assets/images/farm_hero_bg.png') center/cover no-repeat;
+            color: var(--white);
+        }
+        .hero-content {
+            width: 50%;
+            padding-right: 2rem;
+        }
+        .hero-title {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--white);
+        }
+        .hero-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        .hero-image-container {
+            width: 50%;
+            display: flex;
+            justify-content: center;
+        }
+        .hero-image {
+            max-width: 100%;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            border: 4px solid var(--white);
+            transform: rotate(2deg);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            padding: 5rem 5%;
+            background: var(--white);
+        }
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+        }
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--secondary);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            <img src="/assets/images/logo.png" alt="Khet2City Logo">
+            Khet2City
+        </a>
+        <div class="nav-links" style="display: flex; align-items: center; gap: 1.5rem;">
+            <a href="#" onclick="handleNavClick('about'); return false;">About</a>
+            <a href="#" onclick="handleNavClick('market-prices'); return false;">Market Prices</a>
+            <a href="#" onclick="handleNavClick('advisory'); return false;">Advisory</a>
+            <a href="/auth.html" class="btn btn-outline" style="padding: 0.5rem 1rem;">Login / Register</a>
+            
+            <div style="display: flex; align-items: center; gap: 8px; background: white; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--primary);">
+                <span style="font-size: 1.1rem;">🌐</span>
+                <select id="k2c-lang-select" onchange="changeK2CLanguage(this.value)" style="border: none; outline: none; background: transparent; font-weight: 600; cursor: pointer; color: var(--text-dark, #333); padding: 4px 0; line-height: 1.5; font-size: 1rem;">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="te">తెలుగు (Telugu)</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Farm Fresh, No Middlemen</h1>
+            <p class="hero-subtitle">Connect directly with organic farmers. Better prices for farmers, fresher produce for buyers.</p>
+            <div style="display: flex; gap: 1rem;">
+                <a href="/auth.html" class="btn btn-primary">Join as Farmer</a>
+                <a href="/auth.html" class="btn btn-secondary" style="background: rgba(255,255,255,0.2); color: white;">Shop Produce</a>
+            </div>
+        </div>
+        <div class="hero-image-container">
+            <img src="/assets/images/farmer.png" alt="Happy Farmer" class="hero-image">
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="feature-card">
+            <div class="feature-icon">💰</div>
+            <h3>Fair Pricing</h3>
+            <p class="text-light">We eliminate middlemen margins so farmers get what they deserve and buyers save money.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🌾</div>
+            <h3>Farm Fresh</h3>
+            <p class="text-light">Traceable goodness directly from farms to your kitchen in record time.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">📱</div>
+            <h3>SMS Alerts</h3>
+            <p class="text-light">Real-time daily market price alerts for farmers directly on their phones.</p>
+        </div>
+    </section>
+
+    <!-- Detailed About Us Section (Dynamic) -->
+    <section id="about-section" class="about-section" style="display: none;">
+        <div class="about-grid">
+            <div>
+                <h2 style="font-size: 2.5rem; margin-bottom: 2rem;">Direct. <span style="color: var(--primary);">Fresh.</span> Transparent.</h2>
+                <p class="text-light" style="font-size: 1.1rem; margin-bottom: 2rem;">Khet2City is a digital revolution for the Indian agricultural landscape. We dismantle the traditional, multi-layered "Mandi" system to bridge the gap between rural farmers and urban consumers.</p>
+                
+                <div class="progress-container">
+                    <div class="progress-header"><span>Farmer Income Growth</span><span>+25% to 40%</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 40%;"></div></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-header"><span>Consumer Savings</span><span>15% to 20%</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 20%;"></div></div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-header"><span>Produce Freshness</span><span>48+ Hours Faster</span></div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 60%;"></div></div>
+                </div>
+            </div>
+            
+            <div class="economic-card">
+                <h3 style="color: var(--primary);">The Economic Vision</h3>
+                <p class="text-light" style="margin-bottom: 1.5rem;">Agriculture is the backbone of India, contributing 15-18% to the national GDP. However, inefficiency leads to nearly ₹92,000 crores in annual post-harvest losses.</p>
+                <p style="font-weight: 700; margin-bottom: 0.5rem;">Target Impact:</p>
+                <ul style="list-style: none; padding-left: 0;">
+                    <li style="margin-bottom: 0.5rem;">🌟 <strong>+0.5% GDP Growth</strong> contribution.</li>
+                    <li style="margin-bottom: 0.5rem;">🚜 <strong>₹92,000 Cr</strong> reclaimed value.</li>
+                    <li>🌍 <strong>Sustainable</strong> community-driven trade.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer style="background: var(--primary); color: white; text-align: center; padding: 2rem;">
+        <p>&copy; 2026 Khet2City. Empowering Rural India.</p>
+    </footer>
+
+    <div id="google_translate_element" style="display:none;"></div>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'en,hi,te', autoDisplay: false}, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script>
+        function changeK2CLanguage(lang) {
+            const domain = window.location.hostname;
+            document.cookie = `googtrans=/en/${lang}; path=/`;
+            if (domain && domain !== 'localhost') {
+                document.cookie = `googtrans=/en/${lang}; domain=.${domain}; path=/`;
+            }
+            location.reload();
+        }
+
+        window.addEventListener('load', () => {
+            const match = document.cookie.match(/googtrans=\/en\/([a-z]{2})/);
+            if(match && match[1]) {
+                const select = document.getElementById('k2c-lang-select');
+                if([...select.options].some(opt => opt.value === match[1])) {
+                    select.value = match[1];
+                }
+            }
+        });
+
+        function handleNavClick(section) {
+            const token = localStorage.getItem('token');
+            if (token) {
+                if (section === 'about') {
+                    // Show the section on the home page if already here
+                    document.getElementById('about-section').style.display = 'block';
+                    document.getElementById('about-section').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    window.location.href = `/dashboard.html?section=${section}`;
+                }
+            } else {
+                window.location.href = `/auth.html?redirect=${section}`;
+            }
+        }
+
+        // Auto-show about section if we were redirected back after login
+        window.onload = () => {
+             const urlParams = new URLSearchParams(window.location.search);
+             const token = localStorage.getItem('token');
+             if (token) {
+                 if (urlParams.get('redirect') === 'about') {
+                     document.getElementById('about-section').style.display = 'block';
+                     document.getElementById('about-section').scrollIntoView({ behavior: 'smooth' });
+                 }
+                 // Update navbar to show greeting
+                 const user = JSON.parse(localStorage.getItem('user'));
+                 const navLinks = document.querySelector('.nav-links');
+                 const loginBtn = navLinks.querySelector('.btn-outline');
+                 if (loginBtn) {
+                     loginBtn.outerHTML = `<div style="display:flex; align-items:center; gap:10px;"><span style="font-weight:600; color:var(--text-dark);">Hello, ${user.name.split(' ')[0]}</span><a href="#" onclick="localStorage.clear(); location.reload();" class="btn-primary" style="padding: 6px 12px; border-radius:8px; font-size:1.2rem;">→</a></div>`;
+                 }
+             }
+        };
+    </script>
+</body>
+</html>

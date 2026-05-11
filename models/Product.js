@@ -14,6 +14,7 @@ const productSchema = new mongoose.Schema({
   deliveryOptions: [{ type: String, enum: ['Self', 'Shiprocket', 'Porter', 'Pickup'] }],
   location: { village: String, district: String, state: String },
   isAvailable:  { type: Boolean, default: true },
+  salesCount:   { type: Number, default: 0 },
   views:        { type: Number, default: 0 },
   rating:       { type: Number, default: 0 },
   totalRatings: { type: Number, default: 0 },

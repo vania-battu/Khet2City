@@ -4,7 +4,7 @@ const { protect, authorize } = require('../middleware/auth');
 
 router.get('/',      getAdvisories);
 router.get('/:id',   getAdvisory);
-router.post('/',     protect, authorize('admin'), createAdvisory);
+router.post('/',     protect, createAdvisory);
 router.delete('/:id',protect, authorize('admin'), deleteAdvisory);
 
 module.exports = router;

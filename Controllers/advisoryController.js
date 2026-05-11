@@ -40,10 +40,18 @@ exports.getAdvisory = async (req, res) => {
   }
 };
 
-// POST /api/advisory  (admin only)
+// POST /api/advisory (authenticated users)
 exports.createAdvisory = async (req, res) => {
   try {
-    const advisory = await Advisory.create(req.body);
+    const advisoryData = {
+      ...req.body,
+      author: req.user.name,
+      authorId: req.user._id,
+      // Only admins are automatically "professional" for now, or use a field check
+      isProfessional: req.user.role === 'admin' ? true : false
+    };
+    
+    const advisory = await Advisory.create(advisoryData);
     res.status(201).json({ success: true, advisory });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

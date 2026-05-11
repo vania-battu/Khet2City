@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Register | Khet2City</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: linear-gradient(rgba(27, 94, 32, 0.4), rgba(27, 94, 32, 0.8)), url('/assets/images/farm_hero_bg.png') center/cover no-repeat, var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .auth-container {
+            background: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 450px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .auth-header img {
+            height: 50px;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+        }
+        .auth-header h2 { color: var(--primary); }
+        .toggle-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .toggle-link {
+            color: var(--text-light);
+            cursor: pointer;
+            font-weight: 600;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .toggle-link.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        /* Role Selection */
+        .role-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .role-option {
+            border: 2px solid #e5e7eb;
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .role-option:hover {
+            border-color: var(--primary-light);
+            background: var(--secondary);
+        }
+        .role-option.selected {
+            border-color: var(--primary);
+            background: var(--secondary);
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .role-option input[type="radio"] {
+            display: none;
+        }
+        .auth-form {
+            display: none;
+        }
+        .auth-form.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-header">
+            <a href="/">
+                <img src="/assets/images/logo.png" alt="Khet2City">
+            </a>
+            <h2>Welcome to Khet2City</h2>
+            <p class="text-light">Login or create an account to continue.</p>
+        </div>
+
+        <div id="alert-box" class="alert"></div>
+
+        <div class="toggle-links">
+            <div class="toggle-link active" onclick="toggleForm('login')">Login</div>
+            <div class="toggle-link" onclick="toggleForm('register')">Register</div>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form active">
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="login-email" class="form-control" required placeholder="Enter email">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="login-password" class="form-control" required placeholder="Enter password">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form" class="auth-form">
+            <div class="form-group">
+                <label class="form-label">I am a...</label>
+                <div class="role-selector">
+                    <label class="role-option selected" id="role-farmer-label">
+                        <input type="radio" name="role" value="farmer" checked onchange="selectRole('farmer')">
+                        👨🏽‍🌾 Farmer
+                    </label>
+                    <label class="role-option" id="role-buyer-label">
+                        <input type="radio" name="role" value="buyer" onchange="selectRole('buyer')">
+                        🛒 Buyer
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="reg-name" class="form-control" required placeholder="Your name">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="reg-email" class="form-control" required placeholder="Your email">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="text" id="reg-phone" class="form-control" required placeholder="Your 10-digit phone number">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="reg-password" class="form-control" required minlength="6" placeholder="Create password (min 6 chars)">
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+        </form>
+    </div>
+
+    <!-- Auth Logic -->
+    <script>
+        function toggleForm(type) {
+            document.querySelectorAll('.toggle-link').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(el => el.classList.remove('active'));
+            
+            document.querySelector(`.toggle-link:nth-child(${type === 'login' ? 1 : 2})`).classList.add('active');
+            document.getElementById(`${type}-form`).classList.add('active');
+            showAlert('', false);
+        }
+
+        function selectRole(role) {
+            document.querySelectorAll('.role-option').forEach(el => el.classList.remove('selected'));
+            document.getElementById(`role-${role}-label`).classList.add('selected');
+        }
+
+        function showAlert(message, isError = true) {
+            const alertBox = document.getElementById('alert-box');
+            if (!message) {
+                alertBox.style.display = 'none';
+                return;
+            }
+            alertBox.textContent = message;
+            alertBox.className = `alert ${isError ? 'error' : 'success'}`;
+        }
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const phone = document.getElementById('reg-phone').value;
+            const password = document.getElementById('reg-password').value;
+            const role = document.querySelector('input[name="role"]:checked').value;
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, phone, password, role })
+                });
+                const data = await response.json();
+                console.log('Registration Response Status:', response.status);
+                console.log('Registration Response Data:', data);
+                
+                if (response.ok && data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showAlert('Registration Successful! Redirecting...', false);
+                    setTimeout(() => {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const redirectSection = urlParams.get('redirect');
+                        if (redirectSection === 'about') {
+                            window.location.href = '/index.html?redirect=about';
+                        } else {
+                            window.location.href = redirectSection ? `/dashboard.html?section=${redirectSection}` : '/dashboard.html';
+                        }
+                    }, 1500);
+                } else {
+                    console.warn('Registration failed with data:', data);
+                    showAlert(data.message || 'Registration failed');
+                }
+            } catch (err) {
+                console.error('Registration Catch Error:', err);
+                showAlert('Server error. Please try again later.');
+            }
+        });
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                console.log('Login Response Status:', response.status);
+                console.log('Login Response Data:', data);
+
+                if (response.ok && data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showAlert('Login Successful! Redirecting...', false);
+                    setTimeout(() => {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const redirectSection = urlParams.get('redirect');
+                        if (redirectSection === 'about') {
+                            window.location.href = '/index.html?redirect=about';
+                        } else {
+                            window.location.href = redirectSection ? `/dashboard.html?section=${redirectSection}` : '/dashboard.html';
+                        }
+                    }, 1000);
+                } else {
+                    console.warn('Login failed with data:', data);
+                    showAlert(data.message || 'Login failed Check credentials');
+                }
+            } catch (err) {
+                console.error('Login Catch Error:', err);
+                showAlert('Server error. Please check if the backend is running.');
+            }
+        });
+    </script>
+
+    <!-- Language Selector & Google Translate -->
+    <div style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; align-items: center; gap: 10px; background: white; padding: 8px 12px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <span style="font-size: 1.2rem;">🌐</span>
+        <select id="k2c-lang-select" onchange="changeK2CLanguage(this.value)" style="border: none; outline: none; background: transparent; font-weight: 600; cursor: pointer; color: var(--text-dark, #333); padding: 4px 0; line-height: 1.5; font-size: 1rem;">
+            <option value="en">English</option>
+            <option value="hi">हिंदी (Hindi)</option>
+            <option value="te">తెలుగు (Telugu)</option>
+        </select>
+    </div>
+
+    <div id="google_translate_element" style="display:none;"></div>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'en,hi,te', autoDisplay: false}, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script>
+        function changeK2CLanguage(lang) {
+            const domain = window.location.hostname;
+            document.cookie = `googtrans=/en/${lang}; path=/`;
+            if (domain && domain !== 'localhost') {
+                document.cookie = `googtrans=/en/${lang}; domain=.${domain}; path=/`;
+            }
+            location.reload();
+        }
+
+        window.addEventListener('load', () => {
+            const match = document.cookie.match(/googtrans=\/en\/([a-z]{2})/);
+            if(match && match[1]) {
+                const select = document.getElementById('k2c-lang-select');
+                if([...select.options].some(opt => opt.value === match[1])) {
+                    select.value = match[1];
+                }
+            }
+        });
+    </script>
+</body>
+</html>
